@@ -1,0 +1,67 @@
+<% layout('layout/page') -%>
+<% block('title', 'Registration and login') -%>
+
+ <p>Please enter name and password. If there is not such a user he will be created.</p>
+
+<form class="form-horizontal login-form" name="login-form">
+
+  <div class="form-group">
+    <label for="input-username" class="col-lg-2 control-label">Name</label>
+    <div class="col-lg-10">
+      <input type="text"
+             name="username"
+             value="name"
+             class="form-control"
+             id="input-username"
+             placeholder="Name">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="input-password" class="col-lg-2 control-label">Password</label>
+    <div class="col-lg-10">
+      <input type="password"
+             name="password"
+             value="pass"
+             class="form-control"
+             id="input-password"
+             placeholder="Password">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-lg-offset-2 col-lg-10">
+      <button type="submit"
+              class="btn ctn-primary"
+              data-loading-text="Pending...">Login
+      </button>
+      <span class="help-block error"></span>
+    </div>
+  </div>
+
+</form>
+
+<script>
+  $(document.forms['login-form']).on('submit', function() {
+    const form = $(this);
+
+    $('.error', form).html('');
+    $(':submit', form).button('loading');
+
+    $.ajax({
+      url: '/login',
+      method: 'POST',
+      data: form.serialize(),
+      complete: () => $(':submit', form).button('reset'),
+      statusCode: {
+        200: () => {
+          form.html('You are logged in.').addClass('alert-success');
+          window.location.href = '/chat';
+        },
+        403: () => $('.error', form).html(JSON.parse(jqXHR.responseText).message)
+      }
+    });
+
+    return false;
+  });
+</script>
