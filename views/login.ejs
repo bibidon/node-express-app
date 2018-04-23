@@ -58,7 +58,9 @@
           form.html('You are logged in.').addClass('alert-success');
           window.location.href = '/chat';
         },
-        403: () => $('.error', form).html(JSON.parse(jqXHR.responseText).message)
+        403: function(err) {
+            $('.error', form).html(JSON.parse(err.responseText).message);
+        }
       }
     });
 

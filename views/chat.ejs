@@ -2,3 +2,65 @@
 <% block('title', 'Chat') -%>
 
 <p class="lead">Here will be the Chat</p>
+
+<script src="/vendor/bower_components/socket.io-client/dist/socket.io.js"></script>
+
+<div id="room">
+    <ul class="list-unstyled"></ul>
+    <form>
+        <input type="text" class="form-control" autocomplete="off" autofocus disabled placeholder="Message...">
+    </form>
+</div>
+
+<script>
+    const socket = io('', {'reconnectionDelay': 1}),
+          form = $('#room form'),
+          ul = $('#room ul'),
+          input = $('#room input');
+
+    function printMessage(text) {
+        $('<li>').text(text).appendTo(ul);
+    }
+
+    function printStatus(status) {
+        $('<li>').append($('<i>')).text(status).appendTo(ul);
+    }
+
+    function sendMessage() {
+        const text = input.val();
+
+        socket.emit('message', text, () => printMessage(`I> ${text}`));
+
+        input.val('');
+        return false;
+    }
+
+    socket
+        .on('message', (username, msg) => printMessage(`${username}> ${msg}`))
+        .on('leave', username => printStatus(`${username} just leaves the chat.`))
+        .on('join', username => printStatus(`${username} just joins the chat.`))
+        .on('connect', () => {
+            printStatus('Connection has been done.');
+            form.on('submit', sendMessage);
+            input.prop('disabled', false);
+        })
+        .on('disconnect', function() {
+            printStatus('Connection has been lost.');
+            form.off('submit', sendMessage);
+            input.prop('disabled', true);
+            // this.$emit('error');
+
+            if (socket.io.connecting.indexOf(socket) === -1) {
+                socket.connect();
+            }
+        })
+        .on('error', reason => {
+            if (reason === 'handshake unauthorized') {
+                printStatus('You were logout.');
+            }
+
+            if (socket.io.connecting.indexOf(socket) === -1) {
+                socket.connect();
+            }
+        });
+</script>

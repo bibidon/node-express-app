@@ -67,50 +67,50 @@ user
   )*/
 
 const mongoose = require('libs/mongoose'),
-  async = require('async');
+    async = require('async');
 
 async.series([
-  open,
-  dropDatabase,
-  requireModels,
-  createUsers
-], function(err) {
-  console.log(err);
-  mongoose.disconnect();
-  process.exit(err ? 255 : 0);
+    open,
+    dropDatabase,
+    requireModels,
+    createUsers
+], function (err) {
+    console.log(err);
+    mongoose.disconnect();
+    process.exit(err ? 255 : 0);
 });
 
 function open(callback) {
-  mongoose.connection.on('open', callback);
+    mongoose.connection.on('open', callback);
 }
 
 function dropDatabase(callback) {
-  const db = mongoose.connection.db;
-  db.dropDatabase(callback);
+    const db = mongoose.connection.db;
+    db.dropDatabase(callback);
 }
 
 function requireModels(callback) {
-  require('models/user');
-  // TODO: deprecated, I think
-  async.each(Object.keys(mongoose.models), (name, callback) => {
-    mongoose.models[name].ensureIndexes(callback)
-  }, callback);
+    require('models/user');
+    // TODO: deprecated, I think
+    async.each(Object.keys(mongoose.models), (name, callback) => {
+        mongoose.models[name].ensureIndexes(callback)
+    }, callback);
 }
 
 function createUsers(callback) {
-  const users = [{
-    username: 'Vasya',
-    password: 'supervasya'
-  }, {
-    username: 'Petya',
-    password: '123'
-  }, {
-    username: 'admin',
-    password: 'thetruehero'
-  }];
+    const users = [{
+        username: 'Vasya',
+        password: 'supervasya'
+    }, {
+        username: 'Petya',
+        password: '123'
+    }, {
+        username: 'admin',
+        password: 'thetruehero'
+    }];
 
-  async.each(users, (u, callback) => {
-    const user = new mongoose.models.User(u);
-    user.save(callback);
-  }, callback);
+    async.each(users, (u, callback) => {
+        const user = new mongoose.models.User(u);
+        user.save(callback);
+    }, callback);
 }

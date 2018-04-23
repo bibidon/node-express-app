@@ -39,13 +39,15 @@ router.get('/user/:id', (req, res, next) => {
 
 module.exports = router;*/
 
-const router = require('express').Router();
+const router = require('express').Router(),
+      checkAuth = require('middleware/checkAuth');
 
 router.get('/', require('./frontpage').get);
 
 router.get('/login', require('./login').get);
 router.post('/login', require('./login').post);
+router.post('/logout', require('./logout').post);
 
-router.get('/chat', require('./chat').get);
+router.get('/chat', checkAuth, require('./chat').get);
 
 module.exports = router;
