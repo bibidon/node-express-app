@@ -88,4 +88,5 @@ function onListening() {
     debug('Listening on ' + bind);
 }
 
-require('socket')(server);
+const io = require('socket')(server);
+app.set('io', io);

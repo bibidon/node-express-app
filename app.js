@@ -1,15 +1,14 @@
 const express = require('express'),
-    createError = require('http-errors'),
-    path = require('path'),
-    cookieParser = require('cookie-parser'),
-    logger = require('morgan'),
-    log = require('libs/log')(module),
-    routes = require('routes'),
-    config = require('config'),
-    session = require('express-session'),
-    app = express();
-
-const HttpError = require('error').HttpError;
+      createError = require('http-errors'),
+      path = require('path'),
+      cookieParser = require('cookie-parser'),
+      logger = require('morgan'),
+      log = require('libs/log')(module),
+      routes = require('routes'),
+      config = require('config'),
+      session = require('express-session'),
+      HttpError = require('error').HttpError,
+      app = express();
 
 const mode = app.get('env');
 

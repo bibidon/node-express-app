@@ -54,9 +54,14 @@
                 socket.connect();
             }
         })
+        .on('logout', function () {
+            window.location.href = '/';
+        })
         .on('error', reason => {
             if (reason === 'handshake unauthorized') {
                 printStatus('You were logout.');
+            } else {
+                printStatus(reason);
             }
 
             if (socket.io.connecting.indexOf(socket) === -1) {

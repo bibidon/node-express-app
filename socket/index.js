@@ -42,21 +42,24 @@ module.exports = function (server) {
         parser;
 
     io.origins('localhost:*');
-    io.use((socket, callback) => {
+
+    io.use((socket, next) => {
         handshake = socket.handshake;
 
         async.waterfall([
             callback => {
                 parser = cookieParser(secret);
-                parser(handshake, {}, function(err) {
-                    if (err) return callback(err);
+                parser(handshake, {}, function (err) {
+                    if (err) {
+                        return callback(err);
+                    }
 
                     loadSession(handshake.signedCookies[key], callback);
                 });
             },
             (session, callback) => {
                 if (!session) {
-                    callback(new HttpError(401, 'No session'));
+                    return callback(new HttpError(401, 'No session'));
                 }
 
                 handshake.session = session;
@@ -64,22 +67,21 @@ module.exports = function (server) {
             },
             (user, callback) => {
                 if (!user) {
-                    callback(new HttpError(403, 'Anonymous session may not connect'));
+                    return callback(new HttpError(403, 'Anonymous session may not connect'));
                 }
 
-                handshake.user = user;
-                callback(null);
+                callback(null, user);
             },
-        ], (err) => {
-            if (!err) {
-                return callback(null, true);
+        ], (err, user) => {
+            if (err) {
+                if (err instanceof HttpError) {
+                    return next(new Error('not authorized'));
+                }
+                next(err);
             }
 
-            if (err instanceof HttpError) {
-                return callback(null, false);
-            }
-
-            callback(err);
+            handshake.user = user;
+            next();
         });
     });
 
